@@ -1,5 +1,12 @@
 # Ember Warden
 
+This is my version of the technical exercise. I decided to go for the Optional part 2 - the docker-compose file.
+I wrote this code using Claude Code (Model Sonnet 4.6).
+
+The main packages used are: Typescript, ExpressJS, Prisma, Zod and Jest.
+
+It took me around 1 hour and a half to complete.
+
 ## Requirements
 
 - Node.js 20+
@@ -90,3 +97,10 @@ curl -s -X POST http://localhost:3000/price-points \
   ]
 }
 ```
+
+## Improvements
+
+- Logging: At the moment the project is not using any logging library. To improve the observability, it would be good to log API requests, errors, etc.
+- Tidy-up the data: The request has unused data (departure and arrival times.) It would be good to simplify the schema.
+- Price change API: At the moment the whole backend is doing simple maths on some hardcoded data. To have value, it would be good to offer an API for the admins to update in real time the value of the points.
+- User accounts: Another added value for the project would be to have user accounts and store the number of points. 
