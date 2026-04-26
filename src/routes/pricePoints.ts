@@ -3,7 +3,7 @@
 
 import { Router } from "express";
 import z from "zod";
-import { getValuePerAvios } from "../config/routeRates";
+import { getValuePerAvios } from "../repositories/routeRate";
 import { calculatePricePoints } from "../services/pricePoints";
 
 const router = Router();
@@ -17,7 +17,7 @@ const RequestSchema = z.object({
   currency: z.string().length(3),
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const parsed = RequestSchema.safeParse(req.body);
 
   if (!parsed.success) {
@@ -26,7 +26,7 @@ router.post("/", (req, res) => {
   }
 
   const { departureAirportCode, arrivalAirportCode, price } = parsed.data;
-  const valuePerAvios = getValuePerAvios(departureAirportCode, arrivalAirportCode);
+  const valuePerAvios = await getValuePerAvios(departureAirportCode, arrivalAirportCode);
   const pricePoints = calculatePricePoints(price, valuePerAvios);
 
   res.json({ pricePoints });

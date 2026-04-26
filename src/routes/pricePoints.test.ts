@@ -3,6 +3,15 @@
 
 import request from "supertest";
 import app from "../app";
+import prisma from "../db/client";
+
+jest.mock("../db/client", () => ({
+  routeRate: {
+    findFirst: jest.fn(),
+  },
+}));
+
+const mockFindFirst = prisma.routeRate.findFirst as jest.Mock;
 
 const validBody = {
   departureAirportCode: "LHR",
@@ -13,15 +22,21 @@ const validBody = {
   currency: "GBP",
 };
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 describe("POST /price-points", () => {
   describe("valid request", () => {
     it("returns 200 with four price points", async () => {
+      mockFindFirst.mockResolvedValue({ valuePerAvios: 0.028 });
       const res = await request(app).post("/price-points").send(validBody);
       expect(res.status).toBe(200);
       expect(res.body.pricePoints).toHaveLength(4);
     });
 
     it("returns price points with the correct shape", async () => {
+      mockFindFirst.mockResolvedValue({ valuePerAvios: 0.028 });
       const res = await request(app).post("/price-points").send(validBody);
       for (const point of res.body.pricePoints) {
         expect(point).toMatchObject({
@@ -33,6 +48,7 @@ describe("POST /price-points", () => {
     });
 
     it("uses the route-specific rate for a known route (LHR→LAX)", async () => {
+      mockFindFirst.mockResolvedValue({ valuePerAvios: 0.028 });
       const res = await request(app).post("/price-points").send(validBody);
       // LHR-LAX rate: 0.028; 20% of 100 = 20; ceil(20 / 0.028) = 715
       expect(res.body.pricePoints[0]).toEqual({
@@ -42,7 +58,12 @@ describe("POST /price-points", () => {
       });
     });
 
-    it("uses the default rate for an unknown route", async () => {
+    it("uses the default rate when no route-specific entry exists", async () => {
+      // First call (route lookup) returns null; second call (default) returns 0.02
+      mockFindFirst
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ valuePerAvios: 0.02 });
+
       const res = await request(app)
         .post("/price-points")
         .send({ ...validBody, departureAirportCode: "CDG", arrivalAirportCode: "BER" });

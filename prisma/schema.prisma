@@ -1,0 +1,16 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model RouteRate {
+  id            Int     @id @default(autoincrement())
+  departureCode String?
+  arrivalCode   String?
+  valuePerAvios Float
+
+  @@unique([departureCode, arrivalCode])
+}

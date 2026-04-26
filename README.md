@@ -24,6 +24,16 @@ Start the PostgreSQL database:
 docker-compose up -d
 ```
 
+Run the database migrations:
+```bash
+npm run db:migrate
+```
+
+Seed the route rates:
+```bash
+npm run db:seed
+```
+
 Start the API in development mode (with hot reload):
 ```bash
 npm run dev
@@ -66,7 +76,7 @@ curl -s -X POST http://localhost:3000/price-points \
     "arrivalTime": "2025-06-01T21:00:00Z",
     "price": 500,
     "currency": "GBP"
-  }' | jq
+  }'
 ```
 
 **Response:**
